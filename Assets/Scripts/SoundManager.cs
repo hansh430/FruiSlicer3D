@@ -22,6 +22,7 @@ public class SoundManager : MonoBehaviour
     }
     private void Start()
     {
+        LoadMusicAndSFXState();
         PlayMusic("BGMusic");
     }
     #endregion
@@ -43,15 +44,25 @@ public class SoundManager : MonoBehaviour
             sfxAudioSource.PlayOneShot(sound.clip);
         }
     }
+    public void PlayClickSound(string name)
+    {
+        Sound sound = Array.Find(sfxSounds, x => x.name == name);
+        if (sound != null)
+        {
+            musicAudioSource.PlayOneShot(sound.clip);
+        }
+    }
     public void ToggleMusic()
     {
         musicAudioSource.mute = !musicAudioSource.mute;
         musicBtn.GetComponent<Image>().sprite = musicAudioSource.mute ? muteImage : unmuteImage;
+        SaveMusicAndSFXState();
     }
     public void ToggleSFx()
     {
         sfxAudioSource.mute = !sfxAudioSource.mute;
         sfxBtn.GetComponent<Image>().sprite = sfxAudioSource.mute ? musicOffImage : musicOnImage;
+        SaveMusicAndSFXState();
     }
     public void MusicVolume(float volume)
     {
@@ -61,6 +72,24 @@ public class SoundManager : MonoBehaviour
     public void SFXVolume(float volume)
     {
         sfxAudioSource.volume = volume;
+    }
+    #endregion
+
+    #region Save States
+    private void SaveMusicAndSFXState()
+    {
+        PlayerPrefs.SetInt("MusicMuteState", musicAudioSource.mute ? 1 : 0);
+        PlayerPrefs.SetInt("SFXMuteState", sfxAudioSource.mute ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+    private void LoadMusicAndSFXState()
+    {
+        int musicMuteState = PlayerPrefs.GetInt("MusicMuteState", 0);
+        int sfxMuteState = PlayerPrefs.GetInt("SFXMuteState", 0);
+        musicAudioSource.mute = (musicMuteState == 1);
+        sfxAudioSource.mute = (sfxMuteState == 1);
+        musicBtn.GetComponent<Image>().sprite = musicAudioSource.mute ? muteImage : unmuteImage;
+        sfxBtn.GetComponent<Image>().sprite = sfxAudioSource.mute ? musicOffImage : musicOnImage;
     }
     #endregion
 }
